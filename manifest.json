@@ -1,0 +1,22 @@
+{
+  "name": "Webworks Management",
+  "short_name": "Webworks",
+  "start_url": "./index.php",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "description": "Mobile Dashboard for Webworks",
+  "icons": [
+    {
+      "src": "assets/img/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
