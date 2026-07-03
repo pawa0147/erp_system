@@ -1,0 +1,128 @@
+import { useState, useEffect } from "react";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+export default function EditClientPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [client, setClient] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/clients/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          navigate("/clients");
+        } else {
+          setClient(data);
+        }
+        setFetchLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        navigate("/clients");
+      });
+  }, [id, navigate]);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    // Convert number fields
+    if (data.total_project_amount) data.total_project_amount = parseFloat(data.total_project_amount);
+    if (data.amount_received) data.amount_received = parseFloat(data.amount_received);
+
+    try {
+      const res = await fetch(`${API_URL}/api/clients/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      if (res.ok) {
+        navigate("/clients");
+      } else {
+        const errorData = await res.json();
+        setError(errorData.error || "An error occurred while saving the client.");
+      }
+    } catch (err) {
+      setError("Network error. Could not save client.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (fetchLoading) {
+    return <div className="p-8 text-center text-slate-500"><i className="fa-solid fa-spinner fa-spin text-2xl"></i></div>;
+  }
+
+  if (!client) return null;
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></div>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Edit Client: {client.name}</h2>
+        </div>
+        <Link to="/clients">
+          <Button variant="secondary">
+            <i className="fa-solid fa-arrow-left"></i> Back to List
+          </Button>
+        </Link>
+      </div>
+
+      <GlassCard>
+        {error && <div className="mb-4 text-sm font-semibold text-red-500">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input name="name" label="Full Name" defaultValue={client.name} required />
+            <Input name="company_name" label="Company Name" defaultValue={client.company_name || ""} />
+            <Input name="email" label="Email Address" type="email" defaultValue={client.email || ""} />
+            <Input name="phone" label="Phone Number" defaultValue={client.phone || ""} />
+            <Input name="referral_source" label="Referral Source" defaultValue={client.referral_source || ""} />
+            <Input name="total_project_amount" label="Total Project Amount (₹)" type="number" defaultValue={(client.total_project_amount || 0).toString()} />
+            <Input name="amount_received" label="Amount Received (₹)" type="number" defaultValue={(client.amount_received || 0).toString()} />
+            
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Payment Status
+              </label>
+              <select
+                name="payment_status"
+                defaultValue={client.payment_status || "pending"}
+                className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all duration-200"
+              >
+                <option value="pending" className="text-slate-900">Pending</option>
+                <option value="partial" className="text-slate-900">Partial</option>
+                <option value="completed" className="text-slate-900">Completed</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="pt-4 flex justify-end gap-4 border-t border-slate-200 dark:border-white/10">
+            <Link to="/clients">
+              <Button type="button" variant="secondary">Cancel</Button>
+            </Link>
+            <Button type="submit" variant="primary" disabled={loading}>
+              <i className={loading ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-save"}></i> 
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </GlassCard>
+    </div>
+  );
+}
