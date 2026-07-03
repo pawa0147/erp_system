@@ -2,12 +2,9 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const docs = [
-  { id: 1, title: "Service Agreement - Acme Corp", type: "Contract", date: "2025-06-01", status: "Active", size: "245 KB" },
-  { id: 2, title: "NDA - Globex Inc", type: "NDA", date: "2025-05-20", status: "Active", size: "128 KB" },
-  { id: 3, title: "Freelancer Agreement - Rahul Singh", type: "Employment", date: "2025-04-10", status: "Expired", size: "189 KB" },
-  { id: 4, title: "Vendor Agreement - PrintMart", type: "Vendor", date: "2025-03-15", status: "Active", size: "310 KB" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+import { useState, useEffect } from "react";
 
 const statusCfg = {
   Active: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
@@ -23,6 +20,14 @@ const typeIcons = {
 };
 
 export default function LegalDocsPage() {
+  const [docs, setDocs] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/legal`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setDocs(data))
+      .catch(err => console.error(err));
+  }, []);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
@@ -52,16 +57,18 @@ export default function LegalDocsPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 rounded-xl flex items-center justify-center">
-                        <i className={`fa-solid ${typeIcons[doc.type] || "fa-file"}`}></i>
+                        <i className={`fa-solid ${typeIcons[doc.doc_type] || "fa-file"}`}></i>
                       </div>
                       <div className="font-semibold text-slate-800 dark:text-slate-200">{doc.title}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{doc.type}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.date).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-500">{doc.size}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{doc.doc_type}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.upload_date).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">—</td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[doc.status]}`}>{doc.status}</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[doc.status] || "bg-slate-100 text-slate-600"}`}>
+                      {doc.status}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">

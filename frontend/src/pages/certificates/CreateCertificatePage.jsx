@@ -28,7 +28,7 @@ export default function CreateCertificatePage() {
     const payload = { ...formData, cert_id, issued_by: 1 };
 
     try {
-      const res = await fetch(`${API_URL}/api/certificates`, {
+      const res = await fetch(`${API_URL}/api/documents/certificates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

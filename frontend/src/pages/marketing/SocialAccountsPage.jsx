@@ -2,14 +2,26 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const accounts = [
-  { id: 1, platform: "Facebook", handle: "@webworksdigital", followers: "12.4K", posts: 142, engagement: "4.8%", color: "from-blue-600 to-blue-800", icon: "fa-facebook", last_post: "2 days ago" },
-  { id: 2, platform: "Instagram", handle: "@webworks.studio", followers: "8.7K", posts: 89, engagement: "6.2%", color: "from-pink-500 to-rose-600", icon: "fa-instagram", last_post: "5 hours ago" },
-  { id: 3, platform: "LinkedIn", handle: "webworks-digital-agency", followers: "3.2K", posts: 56, engagement: "2.9%", color: "from-blue-500 to-sky-600", icon: "fa-linkedin", last_post: "1 week ago" },
-  { id: 4, platform: "Twitter/X", handle: "@webworks_io", followers: "5.1K", posts: 310, engagement: "1.4%", color: "from-slate-600 to-slate-800", icon: "fa-x-twitter", last_post: "Yesterday" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+import { useState, useEffect } from "react";
 
 export default function SocialAccountsPage() {
+  const [accounts, setAccounts] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/social`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setAccounts(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Disconnect this account?")) {
+      const res = await fetch(`${API_URL}/api/social/${id}`, { method: 'DELETE' });
+      if (res.ok) setAccounts(accounts.filter(a => a.id !== id));
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
@@ -23,15 +35,15 @@ export default function SocialAccountsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {accounts.map((acc) => (
           <GlassCard key={acc.id} className="overflow-hidden p-0">
-            <div className={`bg-gradient-to-r ${acc.color} p-5 text-white`}>
+            <div className={`bg-gradient-to-r ${acc.color || 'from-slate-600 to-slate-800'} p-5 text-white`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-                    <i className={`fa-brands ${acc.icon}`}></i>
+                    <i className={`fa-brands ${acc.platform_name?.toLowerCase().includes('face') ? 'fa-facebook' : acc.platform_name?.toLowerCase().includes('insta') ? 'fa-instagram' : acc.platform_name?.toLowerCase().includes('link') ? 'fa-linkedin' : 'fa-x-twitter'}`}></i>
                   </div>
                   <div>
-                    <div className="font-bold text-lg">{acc.platform}</div>
-                    <div className="text-sm opacity-80">{acc.handle}</div>
+                    <div className="font-bold text-lg">{acc.platform_name}</div>
+                    <div className="text-sm opacity-80">{acc.username}</div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -56,7 +68,7 @@ export default function SocialAccountsPage() {
             </div>
             <div className="px-5 py-4 flex gap-2">
               <button className="flex-1 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">View Analytics</button>
-              <button className="w-9 h-9 bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 rounded-lg flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+              <button onClick={() => handleDelete(acc.id)} className="w-9 h-9 bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 rounded-lg flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
                 <i className="fa-solid fa-trash text-xs"></i>
               </button>
             </div>

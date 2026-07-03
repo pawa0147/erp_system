@@ -26,6 +26,8 @@ const initMessages = {
   ],
 };
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function ChatPage() {
   const [active, setActive] = useState(1);
   const [messages, setMessages] = useState(initMessages);
@@ -33,17 +35,45 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
 
   useEffect(() => {
+    fetch(`${API_URL}/api/comms/messages`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        // Option to map db messages here. Keeping static for now.
+        console.log("Comms API messages:", data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, active]);
 
-  const send = () => {
+  const send = async () => {
     if (!input.trim()) return;
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    
+    // Optimistic update
     setMessages((prev) => ({
       ...prev,
       [active]: [...(prev[active] || []), { from: "Me", text: input, time: now, isMine: true }],
     }));
+    const messageText = input;
     setInput("");
+
+    // API Call
+    try {
+      await fetch(`${API_URL}/api/comms/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender_id: 1, // Current User
+          receiver_id: active,
+          message: messageText
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const contact = contacts.find((c) => c.id === active);

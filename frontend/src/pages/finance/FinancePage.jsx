@@ -1,21 +1,42 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function FinancePage() {
-  const stats = [
+  const [recentTxns, setRecentTxns] = useState([]);
+  const [stats, setStats] = useState([
     { label: "Income", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-up", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-500/10", border: "border-l-4 border-emerald-500" },
     { label: "Expenses", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
     { label: "Net Profit", value: "₹0", sub: "This Month", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
-  ];
+  ]);
 
-  const recentTxns = [
-    { date: "Jun 18", type: "Income", category: "Project Payment", description: "Website project - Acme Corp", amount: 45000 },
-    { date: "Jun 15", type: "Expense", category: "Office Supplies", description: "Stationery & misc", amount: 2500 },
-    { date: "Jun 12", type: "Income", category: "Consultation", description: "Strategy session - Globex", amount: 15000 },
-    { date: "Jun 10", type: "Expense", category: "Advertising", description: "Google Ads campaign", amount: 8000 },
-    { date: "Jun 05", type: "Income", category: "Retainer", description: "Monthly retainer - TechCo", amount: 30000 },
-  ];
+  useEffect(() => {
+    fetch(`${API_URL}/api/finance`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setRecentTxns(data.slice(0, 5)); // Just taking the most recent 5
+        let income = 0;
+        let expense = 0;
+        const currentMonth = new Date().getMonth();
+        data.forEach(txn => {
+            const txnDate = new Date(txn.transaction_date);
+            if(txnDate.getMonth() === currentMonth) {
+                if(txn.type === 'Income') income += Number(txn.amount);
+                if(txn.type === 'Expense') expense += Number(txn.amount);
+            }
+        });
+        
+        setStats([
+            { label: "Income", value: `₹${income.toLocaleString()}`, sub: "This Month", icon: "fa-arrow-trend-up", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-500/10", border: "border-l-4 border-emerald-500" },
+            { label: "Expenses", value: `₹${expense.toLocaleString()}`, sub: "This Month", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
+            { label: "Net Profit", value: `₹${(income - expense).toLocaleString()}`, sub: "This Month", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
+        ]);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -109,14 +130,14 @@ export default function FinancePage() {
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {recentTxns.map((txn, i) => (
                   <tr key={i} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{txn.date}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(txn.transaction_date).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${txn.type === "Income" ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400"}`}>{txn.type}</span>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{txn.category}</td>
                     <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">{txn.description}</td>
                     <td className={`px-6 py-4 font-bold ${txn.type === "Income" ? "text-emerald-600 dark:text-emerald-500" : "text-red-500 dark:text-red-400"}`}>
-                      {txn.type === "Income" ? "+" : "-"} ₹{txn.amount.toLocaleString()}
+                      {txn.type === "Income" ? "+" : "-"} ₹{Number(txn.amount).toLocaleString()}
                     </td>
                   </tr>
                 ))}

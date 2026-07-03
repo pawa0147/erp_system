@@ -2,16 +2,26 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const txns = [
-  { id: 1, date: "2025-06-18", type: "Income", category: "Project Payment", description: "Website project - Acme Corp", amount: 45000 },
-  { id: 2, date: "2025-06-15", type: "Expense", category: "Office Supplies", description: "Stationery & misc", amount: 2500 },
-  { id: 3, date: "2025-06-12", type: "Income", category: "Consultation", description: "Strategy session - Globex", amount: 15000 },
-  { id: 4, date: "2025-06-10", type: "Expense", category: "Advertising", description: "Google Ads campaign", amount: 8000 },
-  { id: 5, date: "2025-06-05", type: "Income", category: "Retainer", description: "Monthly retainer - TechCo", amount: 30000 },
-  { id: 6, date: "2025-05-30", type: "Expense", category: "Salaries", description: "Employee payroll May", amount: 180000 },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+import { useState, useEffect } from "react";
 
 export default function FinanceTransactionsPage() {
+  const [txns, setTxns] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/finance`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setTxns(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this transaction?")) {
+      const res = await fetch(`${API_URL}/api/finance/${id}`, { method: 'DELETE' });
+      if (res.ok) setTxns(txns.filter(t => t.id !== id));
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
@@ -51,7 +61,7 @@ export default function FinanceTransactionsPage() {
                     {txn.type === "Income" ? "+" : "-"} ₹{txn.amount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4">
-                    <button className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors">
+                    <button onClick={() => handleDelete(txn.id)} className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors">
                       <i className="fa-solid fa-trash"></i>
                     </button>
                   </td>

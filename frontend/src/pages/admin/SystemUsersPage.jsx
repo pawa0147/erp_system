@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -14,14 +14,18 @@ const roleColors = {
 
 const modules = ["billing", "clients", "projects", "hr", "attendance", "finance", "legal", "social", "marketing", "tasks", "certificates", "research", "personal"];
 
-const sampleUsers = [
-  { id: 1, username: "admin", email: "admin@webworks.com", role: "admin", permissions: modules, is_online: true, location: "Mumbai" },
-  { id: 2, username: "john.doe", email: "john@webworks.com", role: "employee", permissions: ["tasks", "attendance"], is_online: false, location: "Delhi" },
-  { id: 3, username: "priya.patel", email: "priya@webworks.com", role: "manager", permissions: ["billing", "clients", "projects", "hr"], is_online: true, location: "Pune" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 
 export default function SystemUsersPage() {
-  const [users, setUsers] = useState(sampleUsers);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/users`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setUsers(data))
+      .catch(err => console.error(err));
+  }, []);
   const [showAdd, setShowAdd] = useState(false);
   const [editUser, setEditUser] = useState(null);
 
@@ -39,8 +43,8 @@ export default function SystemUsersPage() {
         <div className="px-6 py-4 flex justify-between items-center border-b border-slate-100 dark:border-white/10">
           <h3 className="font-bold text-slate-700 dark:text-slate-300">User Directory</h3>
           <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
-            <i className="fa-solid fa-circle text-emerald-500 text-xs mr-1"></i>
-            {users.filter((u) => u.is_online).length} Online
+            <i className="fa-solid fa-users text-emerald-500 text-xs mr-1"></i>
+            {users.length} Total
           </span>
         </div>
         <div className="overflow-x-auto">
@@ -59,7 +63,7 @@ export default function SystemUsersPage() {
                 <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-slate-800 shadow-sm ${user.is_online ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400"}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-slate-800 shadow-sm bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400`}>
                         {user.username.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -72,13 +76,9 @@ export default function SystemUsersPage() {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${roleColors[user.role] || "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400"}`}>{user.role}</span>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    {user.is_online ? (
-                      <span className="text-emerald-600 dark:text-emerald-500 font-semibold"><i className="fa-solid fa-wifi text-xs mr-1"></i>Online</span>
-                    ) : (
-                      <span className="text-slate-400">Offline</span>
-                    )}
+                    <span className="text-slate-400">Offline</span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.location}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Not recorded</td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2 justify-end">
                       <button onClick={() => setEditUser(user)} className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg flex items-center justify-center transition-colors">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,10 +10,7 @@ const leaveBalances = [
   { type: "Unpaid Leave", total: 0, used: 0, icon: "fa-calendar-xmark", bg: "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400", bar: "bg-slate-400" },
 ];
 
-const sampleLeaves = [
-  { id: 1, full_name: "Amit Sharma", designation: "Senior Developer", leave_type: "Casual Leave", start_date: "2025-06-20", end_date: "2025-06-21", reason: "Personal work", status: "Pending" },
-  { id: 2, full_name: "Priya Patel", designation: "UX Designer", leave_type: "Sick Leave", start_date: "2025-06-15", end_date: "2025-06-15", reason: "Fever and cold", status: "Approved" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const statusStyles = {
   Approved: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
@@ -23,7 +20,15 @@ const statusStyles = {
 
 export default function LeavesPage() {
   const [showModal, setShowModal] = useState(false);
-  const [leaves, setLeaves] = useState(sampleLeaves);
+  const [leaves, setLeaves] = useState([]);
+  
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/hr/leaves`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setLeaves(data))
+      .catch(err => console.error(err));
+  }, []);
   const [filter, setFilter] = useState("all");
 
   const filtered = filter === "all" ? leaves : leaves.filter((l) => l.status === filter);

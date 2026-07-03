@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
@@ -10,11 +10,9 @@ const kpis = [
   { label: "Total Reach", value: "245K", icon: "fa-users-viewfinder", color: "border-pink-400", bg: "bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400" },
 ];
 
-const campaigns = [
-  { id: 1, name: "Summer Sale 2025", platform: "Google", budget: 20000, spend: 14500, conversions: 180, reach: 120000, status: "active" },
-  { id: 2, name: "Brand Awareness Q2", platform: "Facebook", budget: 15000, spend: 10000, conversions: 80, reach: 85000, status: "active" },
-  { id: 3, name: "Product Launch Post", platform: "Instagram", budget: 10000, spend: 9800, conversions: 124, reach: 40000, status: "active" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+import { useState, useEffect } from "react";
 
 const platformIcon = {
   Google: { icon: "fa-google", color: "text-blue-500" },
@@ -25,6 +23,14 @@ const platformIcon = {
 
 export default function MarketingPage() {
   const [selectedDay, setSelectedDay] = useState(null);
+  const [campaigns, setCampaigns] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/marketing/campaigns`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setCampaigns(data))
+      .catch(err => console.error(err));
+  }, []);
 
   const today = new Date();
   const monthDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
