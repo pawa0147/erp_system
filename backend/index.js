@@ -130,7 +130,7 @@ app.post('/api/clients', async (req, res) => {
     const { name, company_name, email, phone, address, referral_source, total_project_amount, amount_received, payment_status } = req.body;
     const [result] = await db.query(
       'INSERT INTO clients (name, company_name, email, phone, address, referral_source, total_project_amount, amount_received, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, company_name, email, phone, address, referral_source, total_project_amount || 0, amount_received || 0, payment_status || 'Pending']
+      [name, company_name, email, phone, address, referral_source, total_project_amount || 0, amount_received || 0, payment_status || 'Pending'].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId, ...req.body });
   } catch (error) {
@@ -144,7 +144,7 @@ app.put('/api/clients/:id', async (req, res) => {
     const { name, company_name, email, phone, address, referral_source, total_project_amount, amount_received, payment_status } = req.body;
     await db.query(
       'UPDATE clients SET name=?, company_name=?, email=?, phone=?, address=?, referral_source=?, total_project_amount=?, amount_received=?, payment_status=? WHERE id=?',
-      [name, company_name, email, phone, address, referral_source, total_project_amount || 0, amount_received || 0, payment_status || 'Pending', req.params.id]
+      [name, company_name, email, phone, address, referral_source, total_project_amount || 0, amount_received || 0, payment_status || 'Pending', req.params.id].map(v => v === undefined ? null : v)
     );
     res.json({ success: true });
   } catch (error) {
@@ -169,7 +169,7 @@ app.post('/api/employees', async (req, res) => {
     const { full_name, email, phone, designation, employment_type, college_name, joining_date, base_salary, address, bank_name, account_number, ifsc_code, pan_card, status, profile_image } = req.body;
     const [result] = await db.query(
       'INSERT INTO employees (full_name, email, phone, designation, employment_type, college_name, joining_date, base_salary, address, bank_name, account_number, ifsc_code, pan_card, status, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [full_name, email, phone, designation, employment_type, college_name, joining_date ? new Date(joining_date) : null, base_salary || 0, address, bank_name, account_number, ifsc_code, pan_card, status || 'Active', profile_image]
+      [full_name, email, phone, designation, employment_type, college_name, joining_date ? new Date(joining_date) : null, base_salary || 0, address, bank_name, account_number, ifsc_code, pan_card, status || 'Active', profile_image].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId, ...req.body });
   } catch (error) {
@@ -183,7 +183,7 @@ app.put('/api/employees/:id', async (req, res) => {
     const { full_name, email, phone, designation, employment_type, college_name, joining_date, base_salary, address, bank_name, account_number, ifsc_code, pan_card, status, profile_image } = req.body;
     await db.query(
       'UPDATE employees SET full_name=?, email=?, phone=?, designation=?, employment_type=?, college_name=?, joining_date=?, base_salary=?, address=?, bank_name=?, account_number=?, ifsc_code=?, pan_card=?, status=?, profile_image=? WHERE id=?',
-      [full_name, email, phone, designation, employment_type, college_name, joining_date ? new Date(joining_date) : null, base_salary || 0, address, bank_name, account_number, ifsc_code, pan_card, status || 'Active', profile_image, req.params.id]
+      [full_name, email, phone, designation, employment_type, college_name, joining_date ? new Date(joining_date) : null, base_salary || 0, address, bank_name, account_number, ifsc_code, pan_card, status || 'Active', profile_image, req.params.id].map(v => v === undefined ? null : v)
     );
     res.json({ success: true });
   } catch (error) {
@@ -249,7 +249,7 @@ app.post('/api/leads', async (req, res) => {
     const { company_name, founder_name, contact_number, email, business_type, category, gst_number, status, notes, assigned_to } = req.body;
     const [result] = await db.query(
       'INSERT INTO sales_leads (company_name, founder_name, contact_number, email, business_type, category, gst_number, status, notes, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [company_name, founder_name, contact_number, email, business_type, category, gst_number, status || 'New', notes, assigned_to || null]
+      [company_name, founder_name, contact_number, email, business_type, category, gst_number, status || 'New', notes, assigned_to || null].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId, ...req.body });
   } catch (error) {
@@ -263,7 +263,7 @@ app.put('/api/leads/:id', async (req, res) => {
     const { company_name, founder_name, contact_number, email, business_type, category, gst_number, status, notes, assigned_to } = req.body;
     await db.query(
       'UPDATE sales_leads SET company_name=?, founder_name=?, contact_number=?, email=?, business_type=?, category=?, gst_number=?, status=?, notes=?, assigned_to=? WHERE id=?',
-      [company_name, founder_name, contact_number, email, business_type, category, gst_number, status || 'New', notes, assigned_to || null, req.params.id]
+      [company_name, founder_name, contact_number, email, business_type, category, gst_number, status || 'New', notes, assigned_to || null, req.params.id].map(v => v === undefined ? null : v)
     );
     res.json({ success: true });
   } catch (error) {
@@ -312,7 +312,7 @@ app.post('/api/bills', async (req, res) => {
     const { client_id, client_name, client_email, client_phone, client_address, bill_date, due_date, subtotal, tax_percent, tax_amount, total_amount, status, notes, items } = req.body;
     const [result] = await db.query(
       'INSERT INTO bills (client_id, client_name, client_email, client_phone, client_address, bill_date, due_date, subtotal, tax_percent, tax_amount, total_amount, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [client_id || null, client_name, client_email, client_phone, client_address, bill_date ? new Date(bill_date) : null, due_date ? new Date(due_date) : null, subtotal, tax_percent, tax_amount, total_amount, status || 'Unpaid', notes]
+      [client_id || null, client_name, client_email, client_phone, client_address, bill_date ? new Date(bill_date) : null, due_date ? new Date(due_date) : null, subtotal, tax_percent, tax_amount, total_amount, status || 'Unpaid', notes].map(v => v === undefined ? null : v)
     );
     
     if (items && items.length > 0) {
@@ -367,7 +367,7 @@ app.post('/api/quotes', async (req, res) => {
     const { client_id, client_name, client_email, client_phone, client_address, quotation_date, due_date, subtotal, tax_percent, tax_amount, total_amount, notes, items } = req.body;
     const [result] = await db.query(
       'INSERT INTO quotations (client_id, client_name, client_email, client_phone, client_address, quotation_date, due_date, subtotal, tax_percent, tax_amount, total_amount, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [client_id || null, client_name, client_email, client_phone, client_address, quotation_date ? new Date(quotation_date) : null, due_date ? new Date(due_date) : null, subtotal, tax_percent, tax_amount, total_amount, notes]
+      [client_id || null, client_name, client_email, client_phone, client_address, quotation_date ? new Date(quotation_date) : null, due_date ? new Date(due_date) : null, subtotal, tax_percent, tax_amount, total_amount, notes].map(v => v === undefined ? null : v)
     );
     
     if (items && items.length > 0) {
@@ -406,7 +406,7 @@ app.post('/api/finance', async (req, res) => {
     const { type, category, amount, transaction_date, description, client_id } = req.body;
     const [result] = await db.query(
       'INSERT INTO finance_transactions (type, category, amount, transaction_date, description, client_id) VALUES (?, ?, ?, ?, ?, ?)',
-      [type, category, amount, new Date(transaction_date), description, client_id || null]
+      [type, category, amount, new Date(transaction_date), description, client_id || null].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId, ...req.body });
   } catch (error) {
@@ -436,7 +436,7 @@ app.post('/api/legal', async (req, res) => {
     const { name, category, confidentiality, file_url, uploaded_by } = req.body;
     const [result] = await db.query(
       'INSERT INTO legal_documents (name, category, confidentiality, file_url, uploaded_by) VALUES (?, ?, ?, ?, ?)',
-      [name, category, confidentiality || 'Standard', file_url, uploaded_by || null]
+      [name, category, confidentiality || 'Standard', file_url, uploaded_by || null].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -466,7 +466,7 @@ app.post('/api/marketing/campaigns', async (req, res) => {
     const { name, platform, objective, budget, start_date, end_date, notes, status } = req.body;
     const [result] = await db.query(
       'INSERT INTO marketing_campaigns (name, platform, objective, budget, start_date, end_date, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, platform, objective, budget || 0, new Date(start_date), end_date ? new Date(end_date) : null, notes, status || 'draft']
+      [name, platform, objective, budget || 0, new Date(start_date), end_date ? new Date(end_date) : null, notes, status || 'draft'].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -542,7 +542,7 @@ app.post('/api/personal', async (req, res) => {
     const { user_id, type, category, amount, transaction_date, note } = req.body;
     const [result] = await db.query(
       'INSERT INTO personal_transactions (user_id, type, category, amount, transaction_date, note) VALUES (?, ?, ?, ?, ?, ?)',
-      [user_id || 1, type, category, amount, new Date(transaction_date), note]
+      [user_id || 1, type, category, amount, new Date(transaction_date), note].map(v => v === undefined ? null : v)
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -555,6 +555,29 @@ app.delete('/api/personal/:id', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete personal transaction' });
+  }
+});
+
+// ─── Notifications ──────────────────────────────────────────────
+app.get('/api/notifications', async (req, res) => {
+  try {
+    const user_id = req.query.user_id || 1; // Default to admin user for now
+    const [rows] = await db.query('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 20', [user_id]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching notifications:', error.message);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+app.put('/api/notifications/mark-read', async (req, res) => {
+  try {
+    const user_id = req.body.user_id || 1;
+    await db.query('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0', [user_id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking notifications as read:', error.message);
+    res.status(500).json({ error: 'Failed to mark notifications as read' });
   }
 });
 

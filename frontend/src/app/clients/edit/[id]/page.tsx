@@ -46,7 +46,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
       <GlassCard>
         <form action={handleUpdate} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input name="name" label="Full Name" defaultValue={client.name} required />
+            <Input name="name" label="Full Name *" defaultValue={client.name} required />
             <Input name="company_name" label="Company Name" defaultValue={client.company_name || ""} />
             <Input name="email" label="Email Address" type="email" defaultValue={client.email || ""} />
             <Input name="phone" label="Phone Number" defaultValue={client.phone || ""} />

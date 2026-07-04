@@ -1,20 +1,39 @@
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function FinancePage() {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/finance/transactions`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setTransactions(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch finance transactions:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const totalIncome = transactions.filter(t => t.type === 'Income').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const totalExpense = transactions.filter(t => t.type === 'Expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const netProfit = totalIncome - totalExpense;
+
   const stats = [
+    { label: "Income", value: `₹${totalIncome.toLocaleString()}`, sub: "All Time", icon: "fa-arrow-trend-up", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-500/10", border: "border-l-4 border-emerald-500" },
+    { label: "Expenses", value: `₹${totalExpense.toLocaleString()}`, sub: "All Time", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
+    { label: "Net Profit", value: `₹${netProfit.toLocaleString()}`, sub: "All Time", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
+  ];
     { label: "Income", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-up", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-500/10", border: "border-l-4 border-emerald-500" },
     { label: "Expenses", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
     { label: "Net Profit", value: "₹0", sub: "This Month", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
-  ];
-
-  const recentTxns = [
-    { date: "Jun 18", type: "Income", category: "Project Payment", description: "Website project - Acme Corp", amount: 45000 },
-    { date: "Jun 15", type: "Expense", category: "Office Supplies", description: "Stationery & misc", amount: 2500 },
-    { date: "Jun 12", type: "Income", category: "Consultation", description: "Strategy session - Globex", amount: 15000 },
-    { date: "Jun 10", type: "Expense", category: "Advertising", description: "Google Ads campaign", amount: 8000 },
-    { date: "Jun 05", type: "Income", category: "Retainer", description: "Monthly retainer - TechCo", amount: 30000 },
   ];
 
   return (
@@ -24,7 +43,7 @@ export default function FinancePage() {
           <div className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
           <div>
             <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Financial Overview</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Showing data for: <strong>This Month</strong></p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Showing data for: <strong>All Time</strong></p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -33,23 +52,27 @@ export default function FinancePage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((s) => (
-          <GlassCard key={s.label} className={s.border}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">{s.label}</div>
-                <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{s.value}</div>
-                <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{s.sub}</div>
+      {loading ? (
+        <div className="p-8 text-center text-slate-500"><i className="fa-solid fa-spinner fa-spin text-2xl"></i></div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {stats.map((s) => (
+            <GlassCard key={s.label} className={s.border}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">{s.label}</div>
+                  <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{s.value}</div>
+                  <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{s.sub}</div>
+                </div>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${s.bg} ${s.color}`}>
+                  <i className={`fa-solid ${s.icon}`}></i>
+                </div>
               </div>
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${s.bg} ${s.color}`}>
-                <i className={`fa-solid ${s.icon}`}></i>
-              </div>
-            </div>
-          </GlassCard>
-        ))}
-      </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
+
 
       {/* Charts placeholder */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -107,16 +130,21 @@ export default function FinancePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                {recentTxns.map((txn, i) => (
+                {transactions.length === 0 && !loading && (
+                  <tr><td colSpan="5" className="px-6 py-4 text-center text-slate-500">No transactions found.</td></tr>
+                )}
+                {transactions.slice(0, 5).map((txn, i) => (
                   <tr key={i} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{txn.date}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      {new Date(txn.transaction_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short' })}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${txn.type === "Income" ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400"}`}>{txn.type}</span>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{txn.category}</td>
                     <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">{txn.description}</td>
                     <td className={`px-6 py-4 font-bold ${txn.type === "Income" ? "text-emerald-600 dark:text-emerald-500" : "text-red-500 dark:text-red-400"}`}>
-                      {txn.type === "Income" ? "+" : "-"} ₹{txn.amount.toLocaleString()}
+                      {txn.type === "Income" ? "+" : "-"} ₹{(Number(txn.amount) || 0).toLocaleString()}
                     </td>
                   </tr>
                 ))}

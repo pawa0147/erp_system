@@ -55,10 +55,10 @@ export default function CertificatesPage() {
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(c.issued).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
-                        <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center" title="View">
+                        <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center" title="View" onClick={() => alert('Feature coming soon!')}>
                           <i className="fa-solid fa-eye"></i>
                         </button>
-                        <button className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 flex items-center justify-center" title="Print/Download">
+                        <button className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 flex items-center justify-center" title="Print/Download" onClick={() => alert('Feature coming soon!')}>
                           <i className="fa-solid fa-print"></i>
                         </button>
                       </div>
@@ -95,10 +95,10 @@ export default function CertificatesPage() {
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(m.date).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
-                        <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center">
+                        <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center" onClick={() => alert('Feature coming soon!')}>
                           <i className="fa-solid fa-eye"></i>
                         </button>
-                        <button className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 flex items-center justify-center">
+                        <button className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 flex items-center justify-center" onClick={() => alert('Feature coming soon!')}>
                           <i className="fa-solid fa-print"></i>
                         </button>
                       </div>

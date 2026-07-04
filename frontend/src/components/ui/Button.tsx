@@ -5,7 +5,11 @@ export function Button({
   variant = "primary",
   className = "",
   ...props
-}) {
+}: {
+  children?: React.ReactNode;
+  variant?: "primary" | "secondary" | "danger";
+  className?: string;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const base =
     "inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm cursor-pointer transition-all duration-200 select-none hover:-translate-y-0.5 active:translate-y-0";
 

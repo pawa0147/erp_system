@@ -1,10 +1,16 @@
+import React from 'react';
+
 export function GlassCard({
   children,
   className = "",
   style,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
 }) {
   // Detect padding override from className (e.g., "p-0 overflow-hidden")
-  const noPadding = className.includes("p-0");
+  const noPadding = typeof className === "string" && className.includes("p-0");
 
   return (
     <div

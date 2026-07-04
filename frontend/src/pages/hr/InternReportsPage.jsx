@@ -22,7 +22,7 @@ export default function InternReportsPage() {
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Intern Reports & Tracking</h2>
         </div>
         <div className="flex gap-3">
-          <Link to="/hr"><button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"><i className="fa-solid fa-arrow-left mr-2"></i> Back to HR</button></Link>
+          <Link to="/hr"><button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-arrow-left mr-2"></i> Back to HR</button></Link>
         </div>
       </div>
 
@@ -80,7 +80,7 @@ export default function InternReportsPage() {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[intern.status]}`}>{intern.status}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <button className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-sm font-semibold transition-colors">
+                    <button className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-sm font-semibold transition-colors" onClick={() => alert('Feature coming soon!')}>
                       View Report
                     </button>
                   </td>

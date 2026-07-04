@@ -1,13 +1,9 @@
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const docs = [
-  { id: 1, title: "Service Agreement - Acme Corp", type: "Contract", date: "2025-06-01", status: "Active", size: "245 KB" },
-  { id: 2, title: "NDA - Globex Inc", type: "NDA", date: "2025-05-20", status: "Active", size: "128 KB" },
-  { id: 3, title: "Freelancer Agreement - Rahul Singh", type: "Employment", date: "2025-04-10", status: "Expired", size: "189 KB" },
-  { id: 4, title: "Vendor Agreement - PrintMart", type: "Vendor", date: "2025-03-15", status: "Active", size: "310 KB" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const statusCfg = {
   Active: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
@@ -23,6 +19,32 @@ const typeIcons = {
 };
 
 export default function LegalDocsPage() {
+  const [docs, setDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/legal/documents`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setDocs(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch legal documents:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleDelete = async (id) => {
+    if(!window.confirm('Delete this document?')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/legal/documents/${id}`, { method: 'DELETE' });
+      if (res.ok) setDocs(docs.filter(d => d.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
@@ -47,6 +69,9 @@ export default function LegalDocsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              {docs.length === 0 && !loading && (
+                <tr><td colSpan="6" className="px-6 py-4 text-center text-slate-500">No documents found.</td></tr>
+              )}
               {docs.map((doc) => (
                 <tr key={doc.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
@@ -58,17 +83,17 @@ export default function LegalDocsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{doc.type}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.date).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-500">{doc.size}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.date || doc.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-500">{doc.size || 'N/A'}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[doc.status]}`}>{doc.status}</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[doc.status] || "bg-slate-100 text-slate-600"}`}>{doc.status}</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center transition-colors">
+                      <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center transition-colors" onClick={() => alert('Feature coming soon!')}>
                         <i className="fa-solid fa-download"></i>
                       </button>
-                      <button className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors">
+                      <button className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors" onClick={() => handleDelete(doc.id)}>
                         <i className="fa-solid fa-trash"></i>
                       </button>
                     </div>

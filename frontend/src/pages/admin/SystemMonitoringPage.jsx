@@ -10,7 +10,7 @@ export default function SystemMonitoringPage() {
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">System Monitoring</h2>
         </div>
         <Link to="/">
-          <button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">
+          <button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}>
             <i className="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
           </button>
         </Link>

@@ -51,7 +51,7 @@ export default function FinanceTransactionsPage() {
                     {txn.type === "Income" ? "+" : "-"} ₹{txn.amount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4">
-                    <button className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors">
+                    <button className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 flex items-center justify-center transition-colors" onClick={() => alert('Feature coming soon!')}>
                       <i className="fa-solid fa-trash"></i>
                     </button>
                   </td>

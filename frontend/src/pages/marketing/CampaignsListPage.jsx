@@ -100,7 +100,7 @@ export default function CampaignsListPage() {
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <Link to={`/marketing/create-campaign?edit=${cam.id}`}>
-                          <button className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 flex items-center justify-center transition-colors"><i className="fa-solid fa-pen-to-square"></i></button>
+                          <button className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 flex items-center justify-center transition-colors" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-pen-to-square"></i></button>
                         </Link>
                         <button onClick={() => handleDelete(cam.id)} className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 flex items-center justify-center transition-colors"><i className="fa-solid fa-trash"></i></button>
                       </div>

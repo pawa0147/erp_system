@@ -16,7 +16,7 @@ export default function ResearchPage() {
           <div className="w-2 h-8 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full"></div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Research & Development</h2>
         </div>
-        <Button variant="primary"><i className="fa-solid fa-folder-plus"></i> New Folder</Button>
+        <Button variant="primary" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-folder-plus"></i> New Folder</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -33,7 +33,7 @@ export default function ResearchPage() {
                 <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">{folder.files} files</div>
                 <div className="text-xs text-slate-400 dark:text-slate-500">Updated {new Date(folder.updated).toLocaleDateString()}</div>
               </div>
-              <button className="w-8 h-8 bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 rounded-lg flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">
+              <button className="w-8 h-8 bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 rounded-lg flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}>
                 <i className="fa-solid fa-arrow-right text-sm"></i>
               </button>
             </div>
@@ -61,7 +61,7 @@ export default function ResearchPage() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-400">{file.date}</span>
-                <button className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 rounded-lg flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">
+                <button className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 rounded-lg flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors" onClick={() => alert('Feature coming soon!')}>
                   <i className="fa-solid fa-download text-xs"></i>
                 </button>
               </div>

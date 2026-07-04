@@ -1,19 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-const leaveBalances = [
-  { type: "Casual Leave", total: 12, used: 3, icon: "fa-briefcase", bg: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400", bar: "bg-blue-500" },
-  { type: "Sick Leave", total: 10, used: 1, icon: "fa-heart-pulse", bg: "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400", bar: "bg-red-500" },
-  { type: "Paid Leave", total: 15, used: 5, icon: "fa-sack-dollar", bg: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", bar: "bg-emerald-500" },
-  { type: "Unpaid Leave", total: 0, used: 0, icon: "fa-calendar-xmark", bg: "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400", bar: "bg-slate-400" },
-];
-
-const sampleLeaves = [
-  { id: 1, full_name: "Amit Sharma", designation: "Senior Developer", leave_type: "Casual Leave", start_date: "2025-06-20", end_date: "2025-06-21", reason: "Personal work", status: "Pending" },
-  { id: 2, full_name: "Priya Patel", designation: "UX Designer", leave_type: "Sick Leave", start_date: "2025-06-15", end_date: "2025-06-15", reason: "Fever and cold", status: "Approved" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const statusStyles = {
   Approved: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
@@ -23,15 +13,42 @@ const statusStyles = {
 
 export default function LeavesPage() {
   const [showModal, setShowModal] = useState(false);
-  const [leaves, setLeaves] = useState(sampleLeaves);
+  const [leaves, setLeaves] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
 
-  const filtered = filter === "all" ? leaves : leaves.filter((l) => l.status === filter);
+  useEffect(() => {
+    fetch(`${API_URL}/api/hr/leaves`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setLeaves(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch leaves:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const daysBetween = (s, e) => {
     const d1 = new Date(s), d2 = new Date(e);
     return Math.round((d2.getTime() - d1.getTime()) / 86400000) + 1;
   };
+
+  const getUsed = (type) => {
+    return leaves
+      .filter(l => l.leave_type === type && String(l.status || "").toLowerCase() === 'approved')
+      .reduce((sum, l) => sum + daysBetween(l.start_date, l.end_date), 0);
+  };
+
+  const leaveBalances = [
+    { type: "Casual Leave", total: 12, used: getUsed("Casual Leave"), icon: "fa-briefcase", bg: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400", bar: "bg-blue-500" },
+    { type: "Sick Leave", total: 10, used: getUsed("Sick Leave"), icon: "fa-heart-pulse", bg: "bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400", bar: "bg-red-500" },
+    { type: "Paid Leave", total: 15, used: getUsed("Paid Leave"), icon: "fa-sack-dollar", bg: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", bar: "bg-emerald-500" },
+    { type: "Unpaid Leave", total: 0, used: getUsed("Unpaid Leave"), icon: "fa-calendar-xmark", bg: "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400", bar: "bg-slate-400" },
+  ];
+
+  const filtered = filter === "all" ? leaves : leaves.filter((l) => String(l.status || "").toLowerCase() === filter.toLowerCase());
 
   return (
     <div className="space-y-6">
@@ -47,32 +64,36 @@ export default function LeavesPage() {
       </div>
 
       {/* Balance Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {leaveBalances.map((bal) => (
-          <GlassCard key={bal.type}>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">{bal.type}</div>
-                <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{bal.total > 0 ? bal.total - bal.used : "∞"}</div>
-                <div className="text-xs text-slate-400 mt-1">days remaining</div>
-              </div>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${bal.bg}`}>
-                <i className={`fa-solid ${bal.icon}`}></i>
-              </div>
-            </div>
-            {bal.total > 0 && (
-              <div>
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
-                  <span>Used: {bal.used}</span><span>Total: {bal.total}</span>
+      {loading ? (
+        <div className="p-8 text-center text-slate-500"><i className="fa-solid fa-spinner fa-spin text-2xl"></i></div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {leaveBalances.map((bal) => (
+            <GlassCard key={bal.type}>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">{bal.type}</div>
+                  <div className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{bal.total > 0 ? bal.total - bal.used : "∞"}</div>
+                  <div className="text-xs text-slate-400 mt-1">days remaining</div>
                 </div>
-                <div className="w-full h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                  <div className={`h-full ${bal.bar} rounded-full`} style={{ width: `${(bal.used / bal.total) * 100}%` }}></div>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${bal.bg}`}>
+                  <i className={`fa-solid ${bal.icon}`}></i>
                 </div>
               </div>
-            )}
-          </GlassCard>
-        ))}
-      </div>
+              {bal.total > 0 && (
+                <div>
+                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Used: {bal.used}</span><span>Total: {bal.total}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div className={`h-full ${bal.bar} rounded-full`} style={{ width: `${Math.min((bal.used / bal.total) * 100, 100)}%` }}></div>
+                  </div>
+                </div>
+              )}
+            </GlassCard>
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-2">
@@ -98,14 +119,17 @@ export default function LeavesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              {filtered.length === 0 && !loading && (
+                <tr><td colSpan="6" className="px-6 py-4 text-center text-slate-500">No leaves found.</td></tr>
+              )}
               {filtered.map((row) => (
                 <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">{row.full_name.charAt(0)}</div>
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">{(row.employee_name || "?").charAt(0)}</div>
                       <div>
-                        <div className="font-bold text-slate-800 dark:text-slate-200">{row.full_name}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{row.designation}</div>
+                        <div className="font-bold text-slate-800 dark:text-slate-200">{row.employee_name || "Unknown"}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{row.designation || "-"}</div>
                       </div>
                     </div>
                   </td>

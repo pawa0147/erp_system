@@ -1,20 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const kpis = [
-  { label: "Total Ad Spend", value: "₹45,000", icon: "fa-coins", color: "border-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
-  { label: "Total Clicks", value: "12,847", icon: "fa-computer-mouse", color: "border-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  { label: "Conversions", value: "384", sub: "3.0% Rate", icon: "fa-filter", color: "border-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  { label: "Total Reach", value: "245K", icon: "fa-users-viewfinder", color: "border-pink-400", bg: "bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400" },
-];
-
-const campaigns = [
-  { id: 1, name: "Summer Sale 2025", platform: "Google", budget: 20000, spend: 14500, conversions: 180, reach: 120000, status: "active" },
-  { id: 2, name: "Brand Awareness Q2", platform: "Facebook", budget: 15000, spend: 10000, conversions: 80, reach: 85000, status: "active" },
-  { id: 3, name: "Product Launch Post", platform: "Instagram", budget: 10000, spend: 9800, conversions: 124, reach: 40000, status: "active" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const platformIcon = {
   Google: { icon: "fa-google", color: "text-blue-500" },
@@ -25,6 +14,21 @@ const platformIcon = {
 
 export default function MarketingPage() {
   const [selectedDay, setSelectedDay] = useState(null);
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/marketing/campaigns`)
+      .then(res => res.json())
+      .then(data => {
+        setCampaigns(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch campaigns:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const today = new Date();
   const monthDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
@@ -47,18 +51,39 @@ export default function MarketingPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((k) => (
-          <GlassCard key={k.label} className={`border-b-4 ${k.color} flex items-center gap-4`}>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${k.bg}`}><i className={`fa-solid ${k.icon}`}></i></div>
-            <div>
-              <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{k.label}</div>
-              <div className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{k.value}</div>
-              {k.sub && <div className="text-xs text-slate-400 dark:text-slate-500">{k.sub}</div>}
-            </div>
-          </GlassCard>
-        ))}
-      </div>
+      {loading ? (
+        <div className="p-8 text-center text-slate-500"><i className="fa-solid fa-spinner fa-spin text-2xl"></i></div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Total Ad Spend", value: `₹${campaigns.reduce((acc, c) => acc + (Number(c.spend) || 0), 0).toLocaleString()}`, icon: "fa-coins", color: "border-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
+            { label: "Total Clicks", value: campaigns.reduce((acc, c) => acc + (Number(c.clicks) || 0), 0).toLocaleString(), icon: "fa-computer-mouse", color: "border-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+            { 
+              label: "Conversions", 
+              value: campaigns.reduce((acc, c) => acc + (Number(c.conversions) || 0), 0).toLocaleString(), 
+              sub: campaigns.reduce((acc, c) => acc + (Number(c.clicks) || 0), 0) > 0 ? `${((campaigns.reduce((acc, c) => acc + (Number(c.conversions) || 0), 0) / campaigns.reduce((acc, c) => acc + (Number(c.clicks) || 0), 0)) * 100).toFixed(1)}% Rate` : "0% Rate",
+              icon: "fa-filter", color: "border-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
+            },
+            { 
+              label: "Total Reach", 
+              value: (() => {
+                const tr = campaigns.reduce((acc, c) => acc + (Number(c.reach) || 0), 0);
+                return tr >= 1000 ? `${(tr / 1000).toFixed(1)}K` : tr.toLocaleString();
+              })(), 
+              icon: "fa-users-viewfinder", color: "border-pink-400", bg: "bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400" 
+            },
+          ].map((k) => (
+            <GlassCard key={k.label} className={`border-b-4 ${k.color} flex items-center gap-4`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${k.bg}`}><i className={`fa-solid ${k.icon}`}></i></div>
+              <div>
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{k.label}</div>
+                <div className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{k.value}</div>
+                {k.sub && <div className="text-xs text-slate-400 dark:text-slate-500">{k.sub}</div>}
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Live Campaigns */}
@@ -69,8 +94,9 @@ export default function MarketingPage() {
               <Link to="/marketing/campaigns" className="text-sm text-indigo-500 font-medium hover:underline">View All</Link>
             </div>
             <div className="space-y-4">
+              {campaigns.length === 0 && !loading && <div className="text-slate-500 p-4 text-center">No active campaigns.</div>}
               {campaigns.map((cam) => {
-                const pct = Math.min((cam.spend / cam.budget) * 100, 100);
+                const pct = Math.min(((Number(cam.spend) || 0) / (Number(cam.budget) || 1)) * 100, 100);
                 const plt = platformIcon[cam.platform] || { icon: "fa-globe", color: "text-slate-500" };
                 return (
                   <div key={cam.id} className="p-4 border border-slate-100 dark:border-white/5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
@@ -87,8 +113,8 @@ export default function MarketingPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-slate-800 dark:text-slate-200">₹{cam.spend.toLocaleString()}</div>
-                        <div className="text-xs text-slate-400 dark:text-slate-500">of ₹{cam.budget.toLocaleString()}</div>
+                        <div className="font-bold text-slate-800 dark:text-slate-200">₹{(Number(cam.spend) || 0).toLocaleString()}</div>
+                        <div className="text-xs text-slate-400 dark:text-slate-500">of ₹{(Number(cam.budget) || 0).toLocaleString()}</div>
                         <Link to={`/marketing/${cam.id}/edit`} className="text-xs text-indigo-500 mt-1 inline-block"><i className="fa-solid fa-pen text-xs"></i> Edit</Link>
                       </div>
                     </div>

@@ -18,7 +18,7 @@ export default function ConnectAccountPage() {
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Connect Social Account</h2>
         </div>
         <Link to="/social">
-          <button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">
+          <button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}>
             <i className="fa-solid fa-arrow-left mr-2"></i> Back
           </button>
         </Link>
@@ -41,7 +41,7 @@ export default function ConnectAccountPage() {
               <div className={`h-full border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded-2xl p-6 transition-all duration-300 ${platform.bg} shadow-sm hover:shadow-md flex flex-col items-center justify-center gap-4`}>
                 <i className={`fa-brands ${platform.icon} text-5xl ${platform.color} group-hover:scale-110 transition-transform`}></i>
                 <div className="font-bold text-slate-800 dark:text-slate-200">{platform.name}</div>
-                <button className="mt-2 px-6 py-2 rounded-full bg-white dark:bg-slate-800 shadow-sm font-semibold text-sm text-slate-700 dark:text-slate-300 group-hover:bg-slate-800 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-slate-800 transition-colors">
+                <button className="mt-2 px-6 py-2 rounded-full bg-white dark:bg-slate-800 shadow-sm font-semibold text-sm text-slate-700 dark:text-slate-300 group-hover:bg-slate-800 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-slate-800 transition-colors" onClick={() => alert('Feature coming soon!')}>
                   Connect
                 </button>
               </div>

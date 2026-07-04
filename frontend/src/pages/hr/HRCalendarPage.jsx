@@ -17,8 +17,8 @@ export default function HRCalendarPage() {
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">HR Calendar</h2>
         </div>
         <div className="flex gap-3">
-          <Link to="/hr"><button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"><i className="fa-solid fa-arrow-left mr-2"></i> Back to HR</button></Link>
-          <button className="px-4 py-2 rounded-xl bg-indigo-500 text-white font-semibold hover:bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-all"><i className="fa-solid fa-plus mr-2"></i> Add Event</button>
+          <Link to="/hr"><button className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-arrow-left mr-2"></i> Back to HR</button></Link>
+          <button className="px-4 py-2 rounded-xl bg-indigo-500 text-white font-semibold hover:bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-all" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-plus mr-2"></i> Add Event</button>
         </div>
       </div>
 
@@ -28,9 +28,9 @@ export default function HRCalendarPage() {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">June 2025</h3>
               <div className="flex gap-2">
-                <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"><i className="fa-solid fa-chevron-left text-slate-600 dark:text-slate-400"></i></button>
-                <button className="px-4 h-8 rounded-lg bg-slate-100 dark:bg-white/10 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">Today</button>
-                <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"><i className="fa-solid fa-chevron-right text-slate-600 dark:text-slate-400"></i></button>
+                <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-chevron-left text-slate-600 dark:text-slate-400"></i></button>
+                <button className="px-4 h-8 rounded-lg bg-slate-100 dark:bg-white/10 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}>Today</button>
+                <button className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/20 transition-colors" onClick={() => alert('Feature coming soon!')}><i className="fa-solid fa-chevron-right text-slate-600 dark:text-slate-400"></i></button>
               </div>
             </div>
             

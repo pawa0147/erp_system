@@ -133,6 +133,54 @@ export default function SystemUsersPage() {
           </GlassCard>
         </div>
       )}
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <GlassCard className="w-full max-w-md bg-white dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Edit User</h3>
+              <button onClick={() => setEditUser(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl"><i className="fa-solid fa-xmark"></i></button>
+            </div>
+            <form className="space-y-4" onSubmit={(e) => { 
+              e.preventDefault(); 
+              const formData = new FormData(e.target);
+              const permissions = Array.from(e.target.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+              setUsers(users.map(u => u.id === editUser.id ? {
+                ...u,
+                username: formData.get('username'),
+                email: formData.get('email'),
+                role: formData.get('role'),
+                permissions
+              } : u));
+              setEditUser(null); 
+            }}>
+              <div className="grid grid-cols-2 gap-4">
+                <Input name="username" label="Username" defaultValue={editUser.username} required />
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Role</label>
+                  <select name="role" defaultValue={editUser.role} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all">
+                    {Object.keys(roleColors).map((r) => <option key={r} value={r} className="bg-white dark:bg-slate-800">{r}</option>)}
+                  </select>
+                </div>
+              </div>
+              <Input name="email" label="Email" type="email" defaultValue={editUser.email} required />
+              <Input name="password" label="Password (Leave blank to keep)" type="password" />
+              <div>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Access Permissions</label>
+                <div className="grid grid-cols-2 gap-2 p-3 border-2 border-slate-200 dark:border-white/10 rounded-xl bg-slate-50 dark:bg-white/5 max-h-36 overflow-y-auto">
+                  {modules.map((m) => (
+                    <label key={m} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                      <input type="checkbox" value={m} defaultChecked={editUser.permissions?.includes(m)} className="accent-indigo-500 w-4 h-4" /> {m}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <Button type="submit" variant="primary" className="w-full !justify-center">Save Changes</Button>
+            </form>
+          </GlassCard>
+        </div>
+      )}
     </div>
   );
 }
