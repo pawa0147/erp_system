@@ -31,10 +31,6 @@ export default function FinancePage() {
     { label: "Expenses", value: `₹${totalExpense.toLocaleString()}`, sub: "All Time", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
     { label: "Net Profit", value: `₹${netProfit.toLocaleString()}`, sub: "All Time", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
   ];
-    { label: "Income", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-up", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-500/10", border: "border-l-4 border-emerald-500" },
-    { label: "Expenses", value: "₹0", sub: "This Month", icon: "fa-arrow-trend-down", color: "text-red-500 dark:text-red-400", bg: "bg-red-100 dark:bg-red-500/10", border: "border-l-4 border-red-500" },
-    { label: "Net Profit", value: "₹0", sub: "This Month", icon: "fa-wallet", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-500/10", border: "border-l-4 border-blue-500" },
-  ];
 
   return (
     <div className="space-y-8">
