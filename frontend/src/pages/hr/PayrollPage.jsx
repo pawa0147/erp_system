@@ -1,12 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 
-const sampleEmployees = [
-  { id: 1, full_name: "Amit Sharma", designation: "Senior Developer", base_salary: 85000, present_days: 22, total_days: 30, paid: true, payment_date: "2025-06-01", net_salary: 88000, bonus: 5000, deductions: 2000 },
-  { id: 2, full_name: "Priya Patel", designation: "UX Designer", base_salary: 45000, present_days: 18, total_days: 30, paid: false, payment_date: null, net_salary: 0, bonus: 0, deductions: 0 },
-  { id: 3, full_name: "Rahul Singh", designation: "Marketing Lead", base_salary: 55000, present_days: 28, total_days: 30, paid: false, payment_date: null, net_salary: 0, bonus: 0, deductions: 0 },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function PayrollPage() {
   const now = new Date();
@@ -14,14 +10,34 @@ export default function PayrollPage() {
   const [modalEmp, setModalEmp] = useState(null);
   const [bonus, setBonus] = useState(0);
   const [deductions, setDeductions] = useState(0);
-  const [employees, setEmployees] = useState(sampleEmployees);
+  const [employees, setEmployees] = useState([]);
 
-  const processPayroll = () => {
+  useEffect(() => {
+    fetch(`${API_URL}/api/payroll`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setEmployees(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const processPayroll = async () => {
     if (!modalEmp) return;
     const perDay = modalEmp.base_salary / modalEmp.total_days;
     const gross = perDay * modalEmp.present_days;
-    const net = gross + bonus - deductions;
-    setEmployees(employees.map((e) => e.id === modalEmp.id ? { ...e, paid: true, net_salary: net, bonus, deductions, payment_date: new Date().toISOString().split("T")[0] } : e));
+    const net = gross + Number(bonus) - Number(deductions);
+    const payment_date = new Date().toISOString().split("T")[0];
+    
+    try {
+      const res = await fetch(`${API_URL}/api/payroll/${modalEmp.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Paid', payment_date, bonus: Number(bonus), deductions: Number(deductions), calculated_salary: gross, net_salary: net })
+      });
+      if (res.ok) {
+        setEmployees(employees.map((e) => e.id === modalEmp.id ? { ...e, status: 'Paid', net_salary: net, bonus, deductions, payment_date } : e));
+      }
+    } catch (err) {
+      console.error(err);
+    }
     setModalEmp(null);
   };
 
@@ -61,7 +77,7 @@ export default function PayrollPage() {
               {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-bold text-slate-800 dark:text-slate-200">{emp.full_name}</div>
+                    <div className="font-bold text-slate-800 dark:text-slate-200">{emp.employee_name || emp.full_name}</div>
                     <div className="text-sm text-slate-500 dark:text-slate-400">{emp.designation}</div>
                   </td>
                   <td className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300">₹{emp.base_salary.toLocaleString()}</td>
@@ -69,27 +85,27 @@ export default function PayrollPage() {
                     <span className="font-bold text-emerald-600 dark:text-emerald-500">{emp.present_days}</span> / {emp.total_days} days
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    {emp.paid ? (
+                    {emp.status === 'Paid' ? (
                       <>
-                        <div className="text-slate-600 dark:text-slate-400">Gross: ₹{((emp.base_salary / emp.total_days) * emp.present_days).toFixed(0)}</div>
+                        <div className="text-slate-600 dark:text-slate-400">Gross: ₹{emp.calculated_salary}</div>
                         <div className="text-slate-400 dark:text-slate-500 text-xs">+{emp.bonus} | -{emp.deductions}</div>
-                        <div className="font-bold text-slate-800 dark:text-slate-200">Net: ₹{emp.net_salary.toLocaleString()}</div>
+                        <div className="font-bold text-slate-800 dark:text-slate-200">Net: ₹{emp.net_salary}</div>
                       </>
                     ) : <span className="text-slate-300 dark:text-slate-600">Not processed</span>}
                   </td>
                   <td className="px-6 py-4">
-                    {emp.paid ? (
+                    {emp.status === 'Paid' ? (
                       <>
                         <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">PAID</span>
                         {emp.payment_date && <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{new Date(emp.payment_date).toLocaleDateString()}</div>}
                       </>
                     ) : (
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400">PENDING</span>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">PENDING</span>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button variant={emp.paid ? "secondary" : "primary"} onClick={() => { setModalEmp(emp); setBonus(emp.bonus); setDeductions(emp.deductions); }}>
-                      <i className={`fa-solid ${emp.paid ? "fa-pen" : "fa-calculator"}`}></i> {emp.paid ? "Edit" : "Process"}
+                    <Button variant={emp.status === 'Paid' ? "secondary" : "primary"} onClick={() => { setModalEmp(emp); setBonus(emp.bonus || 0); setDeductions(emp.deductions || 0); }}>
+                      <i className={`fa-solid ${emp.status === 'Paid' ? "fa-pen" : "fa-calculator"}`}></i> {emp.status === 'Paid' ? "Edit" : "Process"}
                     </Button>
                   </td>
                 </tr>

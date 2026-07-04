@@ -10,7 +10,7 @@ export default function FinancePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/finance/transactions`)
+    fetch(`${API_URL}/api/finance`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         setTransactions(data);

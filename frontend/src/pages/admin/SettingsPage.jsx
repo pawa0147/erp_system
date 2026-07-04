@@ -1,18 +1,59 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function SettingsPage() {
+  const [settings, setSettings] = useState({
+    company_name: "Webworks Digital Agency",
+    company_email: "info@webworks.com",
+    company_phone: "+91 98765 43210",
+    company_address: "Mumbai, India",
+    currency: "INR",
+    timezone: "Asia/Kolkata",
+    tax_rate: 18.00
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings`)
+      .then(res => res.ok ? res.json() : {})
+      .then(data => {
+        if(Object.keys(data).length > 0) setSettings(data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleChange = (e) => setSettings({ ...settings, [e.target.name]: e.target.value });
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await fetch(`${API_URL}/api/admin/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      alert('Settings saved successfully!');
+    } catch(e) {
+      alert('Failed to save settings');
+    }
+    setSaving(false);
+  };
+
   const sections = [
     {
       title: "Company Profile",
       icon: "fa-building",
       color: "text-blue-500",
       fields: [
-        <Input key="name" label="Company Name" defaultValue="Webworks Digital Agency" />,
-        <Input key="email" label="Company Email" type="email" defaultValue="info@webworks.com" />,
-        <Input key="phone" label="Phone Number" defaultValue="+91 98765 43210" />,
-        <Input key="address" label="Address" defaultValue="Mumbai, India" />,
+        <Input key="name" name="company_name" label="Company Name" value={settings.company_name} onChange={handleChange} />,
+        <Input key="email" name="company_email" label="Company Email" type="email" value={settings.company_email} onChange={handleChange} />,
+        <Input key="phone" name="company_phone" label="Phone Number" value={settings.company_phone} onChange={handleChange} />,
+        <Input key="address" name="company_address" label="Address" value={settings.company_address} onChange={handleChange} />,
       ],
     },
     {
@@ -44,8 +85,8 @@ export default function SettingsPage() {
           </div>
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{sec.fields}</div>
-            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-white/10">
-              <Button type="submit" variant="primary"><i className="fa-solid fa-check"></i> Save Changes</Button>
+            <div className="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-white/10">
+              <Button variant="primary">Save Section</Button>
             </div>
           </form>
         </GlassCard>
@@ -70,6 +111,13 @@ export default function SettingsPage() {
           ))}
         </div>
       </GlassCard>
+
+      <div className="flex justify-end gap-4 pb-10">
+        <Button variant="secondary">Cancel</Button>
+        <Button variant="primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </div>
     </div>
   );
 }

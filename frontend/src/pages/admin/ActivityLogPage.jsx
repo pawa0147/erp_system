@@ -1,15 +1,25 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function ActivityLogPage() {
-  const activities = [
-    { id: 1, user: "Amit Sharma", action: "Created new project", target: "E-Commerce Website Redesign", time: "10 mins ago", icon: "fa-folder-plus", color: "text-blue-500", bg: "bg-blue-100 dark:bg-blue-500/20" },
-    { id: 2, user: "System", action: "Automated Backup Completed", target: "Database", time: "1 hour ago", icon: "fa-database", color: "text-emerald-500", bg: "bg-emerald-100 dark:bg-emerald-500/20" },
-    { id: 3, user: "Priya Patel", action: "Updated client status", target: "Acme Corp", time: "2 hours ago", icon: "fa-pen-to-square", color: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-500/20" },
-    { id: 4, user: "Rahul Singh", action: "Deleted an invoice", target: "INV-0042", time: "3 hours ago", icon: "fa-trash", color: "text-rose-500", bg: "bg-rose-100 dark:bg-rose-500/20" },
-    { id: 5, user: "System", action: "Failed login attempt", target: "IP: 192.168.1.45", time: "5 hours ago", icon: "fa-shield-halved", color: "text-rose-500", bg: "bg-rose-100 dark:bg-rose-500/20" },
-    { id: 6, user: "Admin", action: "Added new employee", target: "Sneha Reddy", time: "Yesterday", icon: "fa-user-plus", color: "text-indigo-500", bg: "bg-indigo-100 dark:bg-indigo-500/20" },
-  ];
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/activity`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setActivities(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -48,21 +58,27 @@ export default function ActivityLogPage() {
         </div>
         
         <div className="divide-y divide-black/5 dark:divide-white/10">
-          {activities.map(act => (
-            <div key={act.id} className="p-4 flex items-center justify-between hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${act.bg} ${act.color}`}>
-                  <i className={`fa-solid ${act.icon}`}></i>
-                </div>
-                <div>
-                  <div className="text-slate-700 dark:text-slate-300 text-sm">
-                    <span className="font-bold text-slate-800 dark:text-slate-100">{act.user}</span> {act.action} <span className="font-semibold">{act.target}</span>
+              {activities.length === 0 ? (
+                <div className="p-8 text-center text-slate-500">No activity logs found.</div>
+              ) : activities.map((act) => (
+                <div key={act.id} className="p-4 md:p-6 flex items-start gap-4 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${act.bg || 'bg-slate-100 dark:bg-slate-800'}`}>
+                    <i className={`fa-solid ${act.icon || 'fa-circle-info'} ${act.color || 'text-slate-500'}`}></i>
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">{act.time}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-1 mb-1">
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                        <span className="text-indigo-600 dark:text-indigo-400 mr-1">{act.user_id ? `User ${act.user_id}` : 'System'}</span>
+                        {act.action}
+                      </p>
+                      <span className="text-xs text-slate-500 whitespace-nowrap">{new Date(act.created_at).toLocaleString()}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+                      {act.module} {act.details ? `- ${act.details}` : ''}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
         </div>
       </GlassCard>
     </div>

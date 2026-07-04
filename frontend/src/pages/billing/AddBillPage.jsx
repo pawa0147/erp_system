@@ -10,7 +10,9 @@ export default function AddBillPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const type = searchParams.get("type") === "quote" ? "quote" : "bill";
-  const [loading, setLoading] = useState(false);
+  const id = searchParams.get("id");
+  const isEditing = !!id;
+  const [loading, setLoading] = useState(isEditing);
   const [error, setError] = useState("");
   
   const [dbServices, setDbServices] = useState([]);
@@ -21,8 +23,14 @@ export default function AddBillPage() {
     client_phone: "",
     client_gstin: "",
     place_of_supply: "",
-    client_address: ""
+    client_address: "",
+    bill_date: new Date().toISOString().split('T')[0],
+    due_date: "",
+    status: "Unpaid",
+    notes: ""
   });
+  
+  const [clientId, setClientId] = useState("");
 
   useEffect(() => {
     fetch(`${API_URL}/api/clients`)
@@ -34,7 +42,40 @@ export default function AddBillPage() {
       .then(res => res.json())
       .then(data => setDbServices(data))
       .catch(console.error);
-  }, []);
+
+    if (isEditing) {
+      const endpoint = type === "bill" ? "bills" : "quotes";
+      fetch(`${API_URL}/api/${endpoint}/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            setClientId(data.client_id || "");
+            setClientData({
+              client_name: data.client_name || "",
+              client_email: data.client_email || "",
+              client_phone: data.client_phone || "",
+              client_address: data.client_address || "",
+              bill_date: data.bill_date ? new Date(data.bill_date).toISOString().split('T')[0] : (data.quotation_date ? new Date(data.quotation_date).toISOString().split('T')[0] : ""),
+              due_date: data.due_date ? new Date(data.due_date).toISOString().split('T')[0] : "",
+              status: data.status || "Unpaid",
+              notes: data.notes || ""
+            });
+            if (data.tax_percent) setTaxPercent(parseFloat(data.tax_percent));
+            if (data.items && data.items.length > 0) {
+              setItems(data.items.map(item => ({
+                id: item.id || Date.now() + Math.random(),
+                description: item.description || "",
+                hsn_sac: item.hsn_sac || "",
+                quantity: parseFloat(item.quantity) || 1,
+                unit_price: parseFloat(item.unit_price) || 0
+              })));
+            }
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [id, type, isEditing]);
 
   const [items, setItems] = useState([{ id: Date.now(), description: "", hsn_sac: "", quantity: 1, unit_price: 0 }]);
   const [taxPercent, setTaxPercent] = useState(18);
@@ -77,12 +118,15 @@ export default function AddBillPage() {
     data.tax_amount = taxAmount;
     data.total_amount = totalAmount;
     data.tax_percent = taxPercent;
-    data.items = items;
+    data.items = items.map(item => ({ ...item, total: item.quantity * item.unit_price }));
     data.type = type;
 
     try {
-      const res = await fetch(`${API_URL}/api/billing`, {
-        method: 'POST',
+      const endpoint = type === "bill" ? "bills" : "quotes";
+      const url = isEditing ? `${API_URL}/api/${endpoint}/${id}` : `${API_URL}/api/${endpoint}`;
+      const method = isEditing ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
@@ -90,7 +134,7 @@ export default function AddBillPage() {
       if (res.ok) {
         navigate("/billing");
       } else {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => ({ error: "Server returned an invalid response." }));
         setError(errorData.error || "An error occurred while saving.");
       }
     } catch (err) {
@@ -106,7 +150,7 @@ export default function AddBillPage() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <div className="w-2 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Create New {type === "bill" ? "Bill" : "Quotation"}</h2>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{isEditing ? "Edit" : "Create New"} {type === "bill" ? "Bill" : "Quotation"}</h2>
         </div>
         <Link to="/billing">
           <Button variant="secondary">
@@ -123,8 +167,12 @@ export default function AddBillPage() {
               <i className="fa-solid fa-user-check"></i> Select Existing Client (Auto-fill)
             </label>
             <select 
+              name="client_id"
+              value={clientId}
               onChange={(e) => {
-                const client = clients.find(c => c.id === parseInt(e.target.value));
+                const val = e.target.value;
+                setClientId(val);
+                const client = clients.find(c => c.id === parseInt(val));
                 if (client) {
                   setClientData({
                     client_name: client.name || client.company_name || "",
@@ -154,9 +202,9 @@ export default function AddBillPage() {
             <Input name="client_phone" label="Client Phone" value={clientData.client_phone} onChange={e => setClientData({...clientData, client_phone: e.target.value})} />
             
             {type === "bill" ? (
-              <Input name="bill_date" label="Bill Date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required />
+              <Input name="bill_date" label="Bill Date" type="date" value={clientData.bill_date} onChange={e => setClientData({...clientData, bill_date: e.target.value})} required />
             ) : (
-              <Input name="quotation_date" label="Quotation Date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required />
+              <Input name="quotation_date" label="Quotation Date" type="date" value={clientData.bill_date} onChange={e => setClientData({...clientData, bill_date: e.target.value})} required />
             )}
 
             <Input name="client_gstin" label="Client GSTIN (Optional)" placeholder="GST NUMBER" value={clientData.client_gstin} onChange={e => setClientData({...clientData, client_gstin: e.target.value})} />
@@ -179,13 +227,13 @@ export default function AddBillPage() {
               <>
                 <div className="flex flex-col gap-1.5 w-full">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Status</label>
-                  <select name="status" className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all duration-200">
+                  <select name="status" value={clientData.status} onChange={e => setClientData({...clientData, status: e.target.value})} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all duration-200">
                     <option value="Unpaid">Unpaid</option>
                     <option value="Paid">Paid</option>
                     <option value="Overdue">Overdue</option>
                   </select>
                 </div>
-                <Input name="due_date" label="Due Date" type="date" />
+                <Input name="due_date" label="Due Date" type="date" value={clientData.due_date} onChange={e => setClientData({...clientData, due_date: e.target.value})} />
               </>
             )}
             
@@ -372,6 +420,8 @@ export default function AddBillPage() {
              <textarea 
                name="notes" 
                rows={3} 
+               value={clientData.notes}
+               onChange={e => setClientData({...clientData, notes: e.target.value})}
                className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all duration-200"
                placeholder="Additional terms or notes..."
              ></textarea>
@@ -383,7 +433,7 @@ export default function AddBillPage() {
             </Link>
             <Button type="submit" variant="primary" disabled={loading}>
               <i className={loading ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-save"}></i> 
-              {loading ? "Saving..." : `Save ${type === "bill" ? "Bill" : "Quotation"}`}
+              {loading ? "Saving..." : `${isEditing ? "Update" : "Save"} ${type === "bill" ? "Bill" : "Quotation"}`}
             </Button>
           </div>
         </form>

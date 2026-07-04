@@ -20,7 +20,7 @@ export default function SocialAccountsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/social/accounts`)
+    fetch(`${API_URL}/api/social`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         setAccounts(data);

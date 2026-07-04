@@ -1,7 +1,19 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function SystemMonitoringPage() {
+  const [alerts, setAlerts] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/monitoring`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setAlerts(data))
+      .catch(console.error);
+  }, []);
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
@@ -76,23 +88,25 @@ export default function SystemMonitoringPage() {
             <i className="fa-solid fa-triangle-exclamation text-rose-500"></i> System Alerts
           </h3>
           <div className="space-y-4">
-            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/30 flex gap-4">
-              <i className="fa-solid fa-circle-check text-emerald-500 text-xl mt-0.5"></i>
-              <div>
-                <h4 className="font-bold text-emerald-700 dark:text-emerald-400">All Systems Normal</h4>
-                <p className="text-sm text-emerald-600/80 dark:text-emerald-400/80 mt-1">No active issues or warnings at this time.</p>
-                <div className="text-xs font-bold text-emerald-500 mt-2">Updated just now</div>
+            {alerts.length === 0 ? (
+              <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/30 flex gap-4">
+                <i className="fa-solid fa-circle-check text-emerald-500 text-xl mt-0.5"></i>
+                <div>
+                  <h4 className="font-bold text-emerald-700 dark:text-emerald-400">All Systems Normal</h4>
+                  <p className="text-sm text-emerald-600/80 dark:text-emerald-400/80 mt-1">No active issues or warnings at this time.</p>
+                  <div className="text-xs font-bold text-emerald-500 mt-2">Updated just now</div>
+                </div>
               </div>
-            </div>
-            
-            <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-500/30 flex gap-4">
-              <i className="fa-solid fa-rotate text-blue-500 text-xl mt-0.5"></i>
-              <div>
-                <h4 className="font-bold text-blue-700 dark:text-blue-400">Database Backup Successful</h4>
-                <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-1">Daily automated backup completed in 45 seconds.</p>
-                <div className="text-xs font-bold text-blue-500 mt-2">4 hours ago</div>
+            ) : alerts.map(alert => (
+              <div key={alert.id} className={`p-4 rounded-xl border flex gap-4 ${alert.status === 'Critical' ? 'border-rose-200 bg-rose-50 dark:bg-rose-500/10 dark:border-rose-500/30' : 'border-blue-200 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-500/30'}`}>
+                <i className={`fa-solid ${alert.status === 'Critical' ? 'fa-triangle-exclamation text-rose-500' : 'fa-info-circle text-blue-500'} text-xl mt-0.5`}></i>
+                <div>
+                  <h4 className={`font-bold ${alert.status === 'Critical' ? 'text-rose-700 dark:text-rose-400' : 'text-blue-700 dark:text-blue-400'}`}>{alert.service_name}</h4>
+                  <p className={`text-sm ${alert.status === 'Critical' ? 'text-rose-600/80 dark:text-rose-400/80' : 'text-blue-600/80 dark:text-blue-400/80'} mt-1`}>{alert.metric_data}</p>
+                  <div className={`text-xs font-bold ${alert.status === 'Critical' ? 'text-rose-500' : 'text-blue-500'} mt-2`}>{new Date(alert.recorded_at).toLocaleString()}</div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </GlassCard>
       </div>

@@ -5,6 +5,38 @@ import { Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+function DeleteButton({ id, type, onDelete }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleDelete() {
+    if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
+    setLoading(true);
+    try {
+      const endpoint = type === 'bill' ? 'bills' : 'quotes';
+      const res = await fetch(`${API_URL}/api/${endpoint}/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        onDelete(id, type);
+      } else {
+        console.error(`Failed to delete ${type}`);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  }
+
+  return (
+    <button
+      onClick={handleDelete}
+      disabled={loading}
+      className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors flex items-center justify-center disabled:opacity-50"
+      title={`Delete ${type}`}
+    >
+      <i className={loading ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-trash"}></i>
+    </button>
+  );
+}
+
 export default function BillsListPage() {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +53,10 @@ export default function BillsListPage() {
         setLoading(false);
       });
   }, []);
+
+  function handleDelete(id, type) {
+    setBills(prev => prev.filter(b => b.id !== id));
+  }
 
   if (loading) {
     return <div className="p-8 text-center text-slate-500"><i className="fa-solid fa-spinner fa-spin text-2xl"></i></div>;
@@ -72,10 +108,14 @@ export default function BillsListPage() {
                   <td className="px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-200">
                     ₹{Number(bill.total_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                   </td>
-                  <td className="px-6 py-4 flex justify-center">
+                  <td className="px-6 py-4 flex justify-center gap-2">
                     <Link to={`/billing/view/${bill.id}?type=bill`} className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center justify-center">
                       <i className="fa-solid fa-eye text-xs"></i>
                     </Link>
+                    <Link to={`/billing/add?type=bill&id=${bill.id}`} className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors flex items-center justify-center">
+                      <i className="fa-solid fa-pen text-xs"></i>
+                    </Link>
+                    <DeleteButton id={bill.id} type="bill" onDelete={handleDelete} />
                   </td>
                 </tr>
               ))}

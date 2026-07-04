@@ -11,9 +11,9 @@ export default function UploadDocumentPage() {
   const [dragActive, setDragActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    category: "NDA",
-    confidentiality: "Standard"
+    title: "",
+    doc_type: "NDA",
+    status: "Active"
   });
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,8 +26,8 @@ export default function UploadDocumentPage() {
     // For this boilerplate, we'll just store the metadata.
     const payload = {
       ...formData,
-      file_url: `/uploads/${formData.name.replace(/\s+/g, '_').toLowerCase()}.pdf`,
-      uploaded_by: 1
+      file_path: `/uploads/${formData.title.replace(/\s+/g, '_').toLowerCase()}.pdf`,
+      client_id: null
     };
 
     try {
@@ -73,25 +73,24 @@ export default function UploadDocumentPage() {
 
       <GlassCard>
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <Input label="Document Name *" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Employee NDA - John Doe" required />
+          <Input label="Document Name *" name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Employee NDA - John Doe" required />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Category</label>
-              <select name="category" value={formData.category} onChange={handleChange} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all">
-                <option className="text-slate-800 dark:bg-slate-800">NDA</option>
-                <option className="text-slate-800 dark:bg-slate-800">Employment Contract</option>
-                <option className="text-slate-800 dark:bg-slate-800">Service Agreement</option>
-                <option className="text-slate-800 dark:bg-slate-800">Policy Document</option>
-                <option className="text-slate-800 dark:bg-slate-800">Compliance</option>
+              <select name="doc_type" value={formData.doc_type} onChange={handleChange} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all">
+                <option className="text-slate-800 dark:bg-slate-800" value="NDA">NDA</option>
+                <option className="text-slate-800 dark:bg-slate-800" value="Contract">Employment Contract</option>
+                <option className="text-slate-800 dark:bg-slate-800" value="Agreement">Service Agreement</option>
+                <option className="text-slate-800 dark:bg-slate-800" value="Other">Other Document</option>
               </select>
             </div>
             
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Confidentiality Level</label>
-              <select name="confidentiality" value={formData.confidentiality} onChange={handleChange} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all">
-                <option className="text-slate-800 dark:bg-slate-800" value="Standard">Standard</option>
-                <option className="text-slate-800 dark:bg-slate-800" value="High">High (Restricted Access)</option>
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Status</label>
+              <select name="status" value={formData.status} onChange={handleChange} className="glass-input-topbar w-full py-3 px-4 rounded-xl font-medium outline-none transition-all">
+                <option className="text-slate-800 dark:bg-slate-800" value="Active">Active</option>
+                <option className="text-slate-800 dark:bg-slate-800" value="Draft">Draft</option>
               </select>
             </div>
           </div>

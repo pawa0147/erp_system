@@ -10,9 +10,10 @@ export default function CreateMouPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    partner_name: "",
-    start_date: new Date().toISOString().split("T")[0],
-    end_date: "",
+    party_a: "Webwork Studios",
+    party_b: "",
+    effective_date: new Date().toISOString().split("T")[0],
+    expiry_date: "",
     status: "draft",
     terms: ""
   });
@@ -24,10 +25,10 @@ export default function CreateMouPage() {
     setLoading(true);
     
     try {
-      const res = await fetch(`${API_URL}/api/mous`, {
+      const res = await fetch(`${API_URL}/api/documents/mous`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, created_by: 1 })
+        body: JSON.stringify(formData)
       });
       if (res.ok) {
         navigate('/certificates');
@@ -56,11 +57,11 @@ export default function CreateMouPage() {
       <GlassCard>
         <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input label="Party A (Our Company)" defaultValue="Webwork Studios" disabled />
-            <Input label="Party B (Partner/Institution) *" name="partner_name" value={formData.partner_name} onChange={handleChange} placeholder="e.g. ABC University" required />
+            <Input label="Party A (Our Company)" name="party_a" value={formData.party_a} onChange={handleChange} />
+            <Input label="Party B (Partner/Institution) *" name="party_b" value={formData.party_b} onChange={handleChange} placeholder="e.g. ABC University" required />
             
-            <Input label="Effective Date *" name="start_date" value={formData.start_date} onChange={handleChange} type="date" required />
-            <Input label="Expiry Date *" name="end_date" value={formData.end_date} onChange={handleChange} type="date" required />
+            <Input label="Effective Date *" name="effective_date" value={formData.effective_date} onChange={handleChange} type="date" required />
+            <Input label="Expiry Date *" name="expiry_date" value={formData.expiry_date} onChange={handleChange} type="date" required />
             
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">MoU Status</label>

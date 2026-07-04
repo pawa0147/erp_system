@@ -1,13 +1,29 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function HRCalendarPage() {
-  const events = [
-    { id: 1, title: "Company Townhall", date: "2025-06-15", type: "event", color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" },
-    { id: 2, title: "Public Holiday (Eid)", date: "2025-06-17", type: "holiday", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" },
-    { id: 3, title: "Rahul's Work Anniversary", date: "2025-06-20", type: "anniversary", color: "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400" },
-    { id: 4, title: "Performance Reviews Due", date: "2025-06-25", type: "deadline", color: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400" },
-  ];
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/company-calendar`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setEvents(data.map(e => ({
+            id: e.id,
+            title: e.event_name,
+            date: new Date(e.event_date).toISOString().split('T')[0],
+            type: e.type.toLowerCase(),
+            description: e.description,
+            color: e.type === 'Holiday' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' 
+                   : e.type === 'Event' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
+                   : 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400'
+        })));
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="space-y-6">

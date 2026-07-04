@@ -2,18 +2,26 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Link } from "react-router-dom";
 
-const certs = [
-  { id: 1, name: "Rahul Singh", type: "Internship", issued: "2025-06-01", duration: "3 Months", issued_by: "Webworks Digital Agency" },
-  { id: 2, name: "Anjali Sharma", type: "Appreciation", issued: "2025-05-15", duration: "—", issued_by: "Webworks Digital Agency" },
-  { id: 3, name: "Ravi Kumar", type: "Experience", issued: "2025-04-01", duration: "1 Year", issued_by: "Webworks Digital Agency" },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const mous = [
-  { id: 1, college: "DY Patil College", date: "2025-01-10", contact: "Dr. Mehta" },
-  { id: 2, college: "VJTI Mumbai", date: "2025-03-20", contact: "Prof. Shah" },
-];
+import { useState, useEffect } from "react";
 
 export default function CertificatesPage() {
+  const [certs, setCerts] = useState([]);
+  const [mous, setMous] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/documents/certificates`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setCerts(data))
+      .catch(err => console.error(err));
+
+    fetch(`${API_URL}/api/documents/mous`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setMous(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between mb-4">
@@ -47,12 +55,12 @@ export default function CertificatesPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {certs.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">{c.name}</td>
+                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">{c.recipient_name}</td>
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">{c.type}</span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{c.duration}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(c.issued).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{c.duration || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(c.issue_date).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center" title="View" onClick={() => alert('Feature coming soon!')}>
@@ -90,9 +98,9 @@ export default function CertificatesPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {mous.map((m) => (
                   <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">{m.college}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{m.contact}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(m.date).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">{m.party_b || "Unknown"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{m.signatory_email || "N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(m.effective_date).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 flex items-center justify-center" onClick={() => alert('Feature coming soon!')}>

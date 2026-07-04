@@ -55,8 +55,17 @@ export default function BillingPage() {
     .catch(err => {
       console.error('Failed to fetch billing data:', err);
       setLoading(false);
+      setLoading(false);
     });
   }, []);
+
+  function handleDelete(id, type) {
+    if (type === 'quote') {
+      setQuotes(prev => prev.filter(q => q.id !== id));
+    } else {
+      setBills(prev => prev.filter(b => b.id !== id));
+    }
+  }
 
   const handleDeleteSuccess = (id, type) => {
     if (type === 'bill') {
@@ -182,10 +191,14 @@ export default function BillingPage() {
                       <td className="px-4 py-4 text-sm font-bold text-slate-800 dark:text-slate-200">
                         ₹{Number(quote.total_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                       </td>
-                      <td className="px-4 py-4 flex justify-center">
+                      <td className="px-4 py-4 flex justify-center gap-2">
                         <Link to={`/billing/view/${quote.id}?type=quote`} className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center justify-center">
                           <i className="fa-solid fa-eye text-xs"></i>
                         </Link>
+                        <Link to={`/billing/add?type=quote&id=${quote.id}`} className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors flex items-center justify-center">
+                          <i className="fa-solid fa-pen text-xs"></i>
+                        </Link>
+                        <DeleteButton id={quote.id} type="quote" onDelete={handleDelete} />
                       </td>
                     </tr>
                   ))}
@@ -232,10 +245,14 @@ export default function BillingPage() {
                       <td className="px-4 py-4 text-sm font-bold text-slate-800 dark:text-slate-200">
                         ₹{Number(bill.total_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                       </td>
-                      <td className="px-4 py-4 flex justify-center">
+                      <td className="px-4 py-4 flex justify-center gap-2">
                         <Link to={`/billing/view/${bill.id}?type=bill`} className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center justify-center">
                           <i className="fa-solid fa-eye text-xs"></i>
                         </Link>
+                        <Link to={`/billing/add?type=bill&id=${bill.id}`} className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors flex items-center justify-center">
+                          <i className="fa-solid fa-pen text-xs"></i>
+                        </Link>
+                        <DeleteButton id={bill.id} type="bill" onDelete={handleDelete} />
                       </td>
                     </tr>
                   ))}

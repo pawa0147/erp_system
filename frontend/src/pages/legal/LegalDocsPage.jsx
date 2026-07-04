@@ -23,7 +23,7 @@ export default function LegalDocsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/legal/documents`)
+    fetch(`${API_URL}/api/legal`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         setDocs(data);
@@ -38,7 +38,7 @@ export default function LegalDocsPage() {
   const handleDelete = async (id) => {
     if(!window.confirm('Delete this document?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/legal/documents/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/api/legal/${id}`, { method: 'DELETE' });
       if (res.ok) setDocs(docs.filter(d => d.id !== id));
     } catch (err) {
       console.error(err);
@@ -77,13 +77,13 @@ export default function LegalDocsPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 rounded-xl flex items-center justify-center">
-                        <i className={`fa-solid ${typeIcons[doc.type] || "fa-file"}`}></i>
+                        <i className={`fa-solid ${typeIcons[doc.doc_type] || "fa-file"}`}></i>
                       </div>
                       <div className="font-semibold text-slate-800 dark:text-slate-200">{doc.title}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{doc.type}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.date || doc.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{doc.doc_type}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{new Date(doc.upload_date || doc.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-500">{doc.size || 'N/A'}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusCfg[doc.status] || "bg-slate-100 text-slate-600"}`}>{doc.status}</span>
